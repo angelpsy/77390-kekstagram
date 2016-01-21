@@ -11,21 +11,24 @@ var getMessage = function (a, b) {
                     return 'Переданное GIF-изображение не анимировано';
                 }
                 break
-            };
+            }
         case 'number':
             {
                 return 'Переданное SVG-изображение содержит ' + a + ' объектов и ' + b * 4 + ' аттрибутов';
-                break;
-            };
+                break
+            }
         case 'object':
             {
                 if ((a instanceof Array) && (b instanceof Array)) {
                     var square = 0;
                     a.forEach(function(item, i) {
+                    	if (!b[i]) { 
+                    		return;
+                    	};
                         square += item * b[i];
                     });
                     return 'Общая площадь артефактов сжатия: ' + square + ' пикселей';
-                };
+                }
                 if (a instanceof Array) {
                     var sum = 0;
                     sum = a.reduce(function(val, currentItem) {
@@ -33,9 +36,9 @@ var getMessage = function (a, b) {
                         return val;
                     });
                     return 'Количество красных точек во всех строчках изображения: ' + sum;
-                };
-                break;
-            };
+                }
+                break
+            }
     }
     return "непонятно";
 }
