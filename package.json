@@ -1,0 +1,27 @@
+{
+  "name": "77390-kekstagram",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Личный проект «Кекстаграм» от HTML Academy",
+  "author": "Алексей Алексеев",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/htmlacademy-javascript/77390-kekstagram.git"
+  },
+  "bugs": {
+    "url": "https://github.com/htmlacademy-javascript/77390-kekstagram/issues"
+  },
+  "homepage": "https://github.com/htmlacademy-javascript/77390-kekstagram",
+  "dependencies": {
+    "eslint": "^1.10.3",
+    "http-server": "^0.8.5"
+  },
+  "scripts": {
+    "gosha": "make",
+    "test": "eslint js/",
+    "start": "http-server ."
+  },
+  "engines": {
+    "node": "^5.0.0"
+  }
+}

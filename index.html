@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Open+Sans&subset=latin,cyrillic">
+  <link rel="stylesheet" href="css/main.css">
+  <title>Кекстаграм</title>
+</head>
+<body>
+
+<form class="filters hidden" action="index.html" method="get">
+  <input type="radio" id="filter-popular" class="filters-radio" name="filter" value="popular" checked>
+  <label for="filter-popular" class="filters-item">Популярные</label>
+
+  <input type="radio" id="filter-new" class="filters-radio" name="filter" value="new">
+  <label for="filter-new" class="filters-item">Новые</label>
+
+  <input type="radio" id="filter-discussed" class="filters-radio" name="filter" value="discussed">
+  <label for="filter-discussed" class="filters-item">Обсуждаемые</label>
+</form>
+
+<div class="upload">
+  <form class="upload-form upload-image" id="upload-select-image" method="post" enctype="multipart/form-data">
+    <input type="file" id="upload-file" class="upload-input" name="filename" required>
+    <label class="upload-file upload-control" for="upload-file"></label>
+    <button class="upload-submit upload-control" type="submit"></button>
+  </form>
+
+  <form class="upload-form upload-resize invisible" id="upload-resize" method="post" enctype="multipart/form-data">
+    <img src="" class="resize-image-preview">
+
+    <input type="text" class="invisible" name="resize-image-src" id="resize-image-src">
+
+    <fieldset class="upload-resize-controls">
+      <label for="resize-x">Слева</label><input type="number" id="resize-x" name="x">
+      <label for="resize-y">Сверху</label><input type="number" id="resize-y" name="y">
+      <label for="resize-size">Сторона</label><input type="number" id="resize-size" name="size">
+    </fieldset>
+
+    <fieldset class="upload-form-controls">
+      <button class="upload-form-controls-prev" type="reset" id="resize-prev" name="prev"></button>
+      <button class="upload-form-controls-fwd" type="submit" id="resize-fwd" name="fwd"></button>
+    </fieldset>
+  </form>
+
+  <form class="upload-form upload-filter invisible" id="upload-filter" method="post" enctype="multipart/form-data">
+    <img src="" class="filter-image-preview">
+
+    <input type="text" class="invisible" name="filter-image-src" id="filter-image-src">
+
+    <fieldset class="upload-filter-controls">
+      <input type="radio" name="upload-filter" id="upload-filter-none" value="none" checked><label class="upload-filter-label" for="upload-filter-none">Оригинал</label>
+      <input type="radio" name="upload-filter" id="upload-filter-chrome" value="chrome"><label class="upload-filter-label" for="upload-filter-chrome">Хром</label>
+      <input type="radio" name="upload-filter" id="upload-filter-sepia" value="sepia"><label class="upload-filter-label" for="upload-filter-sepia">Сепия</label>
+    </fieldset>
+
+    <fieldset class="upload-form-controls">
+      <button class="upload-form-controls-prev" type="reset" id="filter-prev" name="prev"></button>
+      <button class="upload-form-controls-fwd" type="submit" id="filter-fwd" name="fwd"></button>
+    </fieldset>
+  </form>
+
+  <div class="upload-message invisible">
+    <div class="upload-message-container"></div>
+  </div>
+</div>
+
+<div class="pictures"></div>
+
+<div class="gallery-overlay invisible">
+  <span class="gallery-overlay-close">&times;</span>
+  <div class="gallery-overlay-preview">
+    <img src="" class="gallery-overlay-image" alt="">
+    <div class="gallery-overlay-controls">
+      <div class="gallery-overlay-controls-like">Нравится <span class="likes-count">0</span></div>
+      <div class="gallery-overlay-controls-comments"><span class="comments-count">125</span> комментариев</div>
+    </div>
+  </div>
+</div>
+
+<template id="picture-template">
+  <a href="" class="picture">
+    <img src="" width="182" height="182">
+    <span class="picture-stats">
+      <span class="picture-stat picture-comments"></span>
+      <span class="picture-stat picture-likes"></span>
+    </span>
+  </a>
+</template>
+
+</body>
+</html>

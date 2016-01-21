@@ -1,0 +1,581 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+
+  background: #232321;
+}
+
+html.inline-element {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+body {
+  position: relative;
+
+  min-width: 980px;
+  min-height: 100%;
+
+  font: 14px "Open Sans", Arial, sans-serif;
+  color: #ffe753;
+}
+
+.invisible {
+  display: none;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.filters {
+  padding: 15px 0;
+
+  text-align: center;
+}
+
+.filters-item {
+  padding: 0 16px;
+
+  font-size: 18px;
+  line-height: 30px;
+  text-decoration: underline;
+
+  cursor: pointer;
+}
+
+.filters-radio {
+  position: absolute;
+  right: -100px;
+  left: -100px;
+}
+
+.filters-radio:checked + .filters-item {
+  color: #000000;
+  text-decoration: none;
+
+  background: #ffffff;
+  border-radius: 2px;
+}
+
+.upload {
+  position: absolute;
+  left: 50%;
+
+  width: 582px;
+  height: 569px;
+  margin: 5px 0 0 -291px;
+  margin-top: 5px;
+  padding: 0;
+
+  background: url("../img/logo-background-1.jpg") center;
+  border: 0;
+}
+
+.upload-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  border: none;
+}
+
+.upload-form {
+  width: 582px;
+  height: 569px;
+}
+
+.upload-image {
+  position: relative;
+  z-index: 1;
+
+  background: url("../img/logo-mask.png") no-repeat center;
+}
+
+.upload-resize,
+.upload-filter {
+  overflow: hidden;
+
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.resize-image-preview,
+.filter-image-preview {
+  max-width: 582px;
+}
+
+.filter-chrome {
+  -webkit-filter: grayscale(1);
+          filter: grayscale(1);
+}
+
+.filter-sepia {
+  -webkit-filter: sepia(1);
+          filter: sepia(1);
+}
+
+.upload-input {
+  visibility: hidden;
+}
+
+.upload-control {
+  position: absolute;
+  top: 193px;
+  left: 202px;
+
+  box-sizing: border-box;
+  width: 182px;
+  height: 182px;
+  margin: 0;
+  padding: 0;
+
+  background: url("../img/icon-photo.png") center no-repeat;
+  border: none;
+  cursor: pointer;
+}
+
+.upload-submit {
+  background-image: url("../img/upload-button.png");
+}
+
+.upload-file {
+  display: block;
+}
+
+.upload-submit {
+  display: none;
+}
+
+.upload-input-hasvalue + .upload-file {
+  display: none;
+}
+
+.upload-input-hasvalue + .upload-file + .upload-submit {
+  display: block;
+}
+
+.upload-form-controls {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+
+  margin: 0;
+  padding: 10px;
+
+  background: rgba(0, 0, 0, 0.8);
+  border: 0;
+}
+
+.upload-form-controls button {
+  display: block;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.upload-form-controls-prev {
+  float: left;
+
+  background: rgba(255, 255, 255, 0.2) url("../img/icon-cross.png") center no-repeat;
+}
+
+.upload-form-controls-fwd {
+  float: right;
+
+  background: rgba(255, 231, 83, 0.2) url("../img/icon-arrow.png") center no-repeat;
+}
+
+.upload-resize canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  max-width: 1200px;
+  max-height: 1200px;
+
+  transform: translate(-50%, -50%);
+  cursor: move;
+}
+
+.upload-resize-controls {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  z-index: 1;
+
+  width: 470px;
+  margin: 0;
+  margin-left: -235px;
+  padding: 0;
+
+  font-size: 12px;
+  line-height: 42px;
+  text-align: center;
+  color: #ffffff;
+
+  border: 0;
+}
+
+.upload-resize-controls input {
+  width: 3em;
+  margin-top: -3px;
+  margin-right: 20px;
+  margin-left: 10px;
+  padding: 0 3px;
+
+  font: 16px/1.3 "Open Sans";
+  vertical-align: middle;
+  text-align: center;
+  color: #000000;
+
+  border: none;
+  border-radius: 2px;
+}
+
+.upload-filter-controls {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  z-index: 1;
+
+  width: 470px;
+  margin: 0;
+  margin-left: -235px;
+  padding: 0;
+
+  font-size: 12px;
+  line-height: 42px;
+  text-align: center;
+  color: #ffffff;
+
+  border: 0;
+}
+
+.upload-filter {
+  line-height: 569px;
+  text-align: center;
+}
+
+.filter-image-preview {
+  vertical-align: middle;
+}
+
+.upload-filter-controls input[type=radio] {
+  position: absolute;
+
+  visibility: hidden;
+}
+
+.upload-filter-label {
+  display: inline-block;
+  margin: 0 10px;
+
+  font: bold 14px "Open Sans Condensed";
+  color: #ffffff;
+  text-transform: uppercase;
+
+  cursor: pointer;
+}
+
+input[type=radio]:checked + .upload-filter-label {
+  color: #ffe753;
+}
+
+.upload-message {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+
+  box-sizing: border-box;
+  padding: 20px;
+
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 569px;
+  text-align: center;
+  color: #ffe753;
+
+  background: #3c3614;
+}
+
+.upload-message a {
+  color: #ffe753;
+}
+
+.upload-message-error {
+  color: #e16567;
+
+  border: solid 5px rgb(130, 30, 0);
+}
+
+.upload-message-error a {
+  color: #e16567;
+}
+
+.upload-message-container {
+  display: inline-block;
+
+  line-height: 1.2;
+  vertical-align: middle;
+}
+
+.pictures {
+  width: 980px;
+  margin: 0 auto;
+  padding-left: 12px;
+
+  font-size: 0;
+  text-align: left;
+}
+
+.pictures-loading:after,
+.pictures-failure:after {
+  position: absolute;
+  top: 260px;
+  left: 50%;
+  z-index: 2;
+
+  box-sizing: border-box;
+  width: 200px;
+  margin-left: -100px;
+  padding: 20px;
+
+  font-size: 30px;
+  text-align: center;
+  color: #ffffff;
+
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+}
+
+.pictures-loading:after {
+  content: "Загрузка...";
+}
+
+.pictures-failure:after {
+  content: "Ошибка загрузки";
+}
+
+.picture {
+  position: relative;
+
+  display: inline-block;
+  box-sizing: border-box;
+  width: 182px;
+  height: 182px;
+  margin-right: 14px;
+  margin-bottom: 14px;
+  overflow: hidden;
+
+  text-align: center;
+}
+
+.picture img {
+  height: 182px;
+  margin-bottom: -34px;
+
+  border: 0;
+}
+
+.picture:nth-of-type(2n-1):nth-of-type(-n+6) {
+  margin-right: 600px;
+}
+
+.picture-load-failure {
+  line-height: 182px;
+
+  background: url("../img/icon-cross.png") no-repeat center;
+  border: solid 1px rgba(255, 255, 255, 0.2);
+  opacity: 0.3;
+}
+
+.picture-load-failure img {
+  display: none;
+  width: 182px;
+  height: 182px;
+}
+
+.picture-stats {
+  display: none;
+  padding: 0 10px;
+
+  line-height: 24px;
+  color: #ffffff;
+
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+}
+
+.picture:hover .picture-stats {
+  display: inline-block;
+}
+
+.picture-load-failure .picture-stats {
+  position: relative;
+  top: -12px;
+
+  line-height: 1.3;
+  vertical-align: bottom;
+}
+
+.picture-stat {
+  position: relative;
+
+  margin: 0 5px;
+
+  font-weight: bold;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.picture-stat:before {
+  content: "";
+  position: relative;
+  top: -1px;
+
+  display: inline-block;
+  margin: 0 2px;
+
+  vertical-align: middle;
+
+  background: url("../img/image-icons-sprite.png") no-repeat 0 0;
+}
+
+.picture-comments:before {
+  width: 20px;
+  height: 16px;
+
+  background-position: 0 0;
+}
+
+.picture-likes:before {
+  width: 19px;
+  height: 15px;
+
+  background-position: -21px 0;
+}
+
+@media (min-width: 1380px) {
+  .pictures {
+    width: 1380px;
+  }
+
+  .picture:nth-of-type(2n-1):nth-of-type(-n+6) {
+    margin-right: 12px;
+  }
+
+  .picture:nth-of-type(2),
+  .picture:nth-of-type(6),
+  .picture:nth-of-type(10) {
+    margin-right: 600px;
+  }
+}
+
+.gallery-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+
+  overflow: auto;
+
+  text-align: center;
+
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.gallery-overlay-close {
+  position: absolute;
+  top: -5px;
+  right: 0;
+
+  padding: 0 10px;
+
+  font-size: 45px;
+  text-align: center;
+  color: #ffffff;
+
+  cursor: pointer;
+}
+
+.gallery-overlay-preview {
+  display: inline-block;
+  margin: 30px 0;
+
+  background: #ffffff;
+}
+
+.gallery-overlay-image[src=""] {
+  display: block;
+  width: 640px;
+  height: 640px;
+
+  border: dotted 1px #dddddd;
+  cursor: pointer;
+}
+
+.gallery-overlay-controls {
+  font-weight: bold;
+  font-size: 14px;
+  color: #000000;
+}
+
+.gallery-overlay-controls-comments,
+.gallery-overlay-controls-like {
+  padding: 0 20px;
+
+  line-height: 40px;
+}
+
+.gallery-overlay-controls-comments {
+  margin-right: 150px;
+
+  text-align: left;
+}
+
+.gallery-overlay-controls-like {
+  float: right;
+  width: 150px;
+
+  text-align: right;
+}
+
+.likes-count {
+  cursor: pointre;
+}
+
+.likes-count:before {
+  content: "";
+
+  display: inline-block;
+  width: 18px;
+  height: 15px;
+  margin-right: 5px;
+
+  vertical-align: middle;
+
+  background: url("../img/icon-heart-sprite.gif") no-repeat 0 0;
+  cursor: pointer;
+}
+
+.likes-count-liked:before {
+  background-position-x: -18px;
+}
