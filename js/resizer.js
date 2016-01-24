@@ -119,6 +119,11 @@
           this._resizeConstraint.side - this._ctx.lineWidth / 2,
           this._resizeConstraint.side - this._ctx.lineWidth / 2);
 
+      //Отрисовка слоя вокруг желтой рамки
+      this._drawBagel();
+      //Отрисовка размера кадрируемого изображения
+      this._drawTextSizeImg();
+
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
       // следующий кадр рисовался с привычной системой координат, где точка
@@ -126,6 +131,40 @@
       // некорректно сработает даже очистка холста или нужно будет использовать
       // сложные рассчеты для координат прямоугольника, который нужно очистить.
       this._ctx.restore();
+    },
+
+    _drawBagel: function(fillStyle) {
+      fillStyle = fillStyle || 'rgba(0,0,0,0.8)';
+      this._ctx.fillStyle = fillStyle;
+      this._ctx.beginPath();
+      this._drawInnerRect();
+      this._drawExtRect();
+      this._ctx.fill('evenodd');
+    },
+
+    _drawInnerRect: function() {
+      this._ctx.rect(
+          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
+          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
+          this._resizeConstraint.side - this._ctx.lineWidth / 2,
+          this._resizeConstraint.side - this._ctx.lineWidth / 2);
+    },
+
+    _drawExtRect: function() {
+      this._ctx.rect(
+          -this._container.width / 2, -this._container.height / 2,
+          this._container.width,this._container.height);
+    },
+
+    _drawTextSizeImg: function(){
+      var text =  this._image.naturalWidth + ' x ' + this._image.naturalHeight;
+      this._ctx.font = '24px sans-serif';
+      this._ctx.fillStyle = '#fff';
+      this._ctx.textAlign = 'center';
+      this._ctx.fillText(text,
+          0,
+          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2 - 20);
+      console.log(text);
     },
 
     /**
