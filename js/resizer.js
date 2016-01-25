@@ -79,6 +79,11 @@
      * Отрисовка канваса.
      */
     redraw: function() {
+
+      //Возможные варианты типов линий dash, dotted, zigzag
+      var typeLineInnerReac = 'zigzag',
+          colorLine = '#ffe753';
+
       // Очистка изображения.
       this._ctx.clearRect(0, 0, this._container.width, this._container.height);
 
@@ -90,12 +95,13 @@
       // Толщина линии.
       this._ctx.lineWidth = 6;
       // Цвет обводки.
-      this._ctx.strokeStyle = '#ffe753';
+      this._ctx.strokeStyle = colorLine;
       // Размер штрихов. Первый элемент массива задает длину штриха, второй
       // расстояние между соседними штрихами.
       this._ctx.setLineDash([15, 10]);
       // Смещение первого штриха от начала линии.
       this._ctx.lineDashOffset = 7;
+          
 
       // Сохранение состояния канваса.
       // Подробней см. строку 132.
@@ -111,18 +117,63 @@
       // Координаты задаются от центра холста.
       this._ctx.drawImage(this._image, displX, displY);
 
-      // Отрисовка прямоугольника, обозначающего область изображения после
-      // кадрирования. Координаты задаются от центра.
-      this._ctx.strokeRect(
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2);
-
+      var xRect = (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
+          wRect = this._resizeConstraint.side - this._ctx.lineWidth / 2,
+          xEndRect = xRect + wRect;
+      switch (typeLineInnerReac) {
+        case 'dash':
+        // Отрисовка прямоугольника, обозначающего область изображения после
+        // кадрирования. Координаты задаются от центра.
+        this._ctx.strokeRect(
+            xRect,
+            xRect,
+            wRect,
+            wRect);
+          break;
+        case 'dotted':
+        var radius = 3,
+            step = 15;
+        // Отрисовка прямоугольника из точек
+          this._ctx.beginPath();
+          this._ctx.fillStyle = colorLine;
+          for (var coord = xRect; coord < xEndRect; coord += step) {
+            this._ctx.arc(
+              xRect,
+              coord,
+              radius, 0, 360);
+            this._ctx.closePath();
+            this._ctx.arc(
+              coord,
+              xRect,
+              radius, 0, 360);
+            this._ctx.closePath();
+            this._ctx.arc(
+              xEndRect,
+              coord,
+              radius, 0, 360);
+            this._ctx.closePath();
+            this._ctx.arc(
+              coord,
+              xEndRect,
+              radius, 0, 360);
+            this._ctx.closePath();
+          }
+          this._ctx.fill();
+          break;
+        // отрисовка прямоугольника из зигзага
+        case 'zigzag':
+          this._ctx.strokeStyle = colorLine;
+          this._ctx.beginPath();
+          this._ctx.setLineDash([0, 0]);
+          this._drawInnerRectZigzag(xRect, wRect, xEndRect);
+          this._ctx.closePath();
+          this._ctx.stroke();
+          break;
+      }
       //Отрисовка слоя вокруг желтой рамки
-      this._drawBagel();
+      this._drawBagel(false, typeLineInnerReac, xRect, wRect, xEndRect);
       //Отрисовка размера кадрируемого изображения
-      this._drawTextSizeImg();
+      this._drawTextSizeImg(xRect);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
@@ -133,38 +184,62 @@
       this._ctx.restore();
     },
 
-    _drawBagel: function(fillStyle) {
+    _drawBagel: function(fillStyle, typeLineInnerReac, xRect, wRect, xEndRect) {
       fillStyle = fillStyle || 'rgba(0,0,0,0.8)';
       this._ctx.fillStyle = fillStyle;
       this._ctx.beginPath();
-      this._drawInnerRect();
+      if (typeLineInnerReac === 'zigzag') {
+        this._drawInnerRectZigzag(xRect, wRect, xEndRect);
+      } else {
+        this._drawInnerRect(xRect, wRect);
+      };
       this._drawExtRect();
       this._ctx.fill('evenodd');
     },
 
-    _drawInnerRect: function() {
+    _drawInnerRect: function(xRect, wRect) {
       this._ctx.rect(
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2);
+          xRect,
+          xRect,
+          wRect,
+          wRect);
+    },
+
+    _drawInnerRectZigzag: function(xRect, wRect, xEndRect) {
+      var step = 15;
+      this._ctx.moveTo(xRect, xRect)
+      for (var coord = xRect + step; coord < xEndRect; coord += step * 2) {
+          this._ctx.lineTo(coord, xRect + step / 2);
+          this._ctx.lineTo(coord + step, xRect - step / 2);
+      };
+      for (var coord = xRect + step; coord < xEndRect; coord += step * 2) {
+          this._ctx.lineTo(xEndRect + step / 2, coord);
+          this._ctx.lineTo(xEndRect - step / 2, coord + step);
+      };
+      for (var coord = xEndRect - step; coord > xRect; coord -= step * 2) {
+          this._ctx.lineTo(coord + step, xEndRect - step / 2);
+          this._ctx.lineTo(coord, xEndRect + step / 2);
+      };
+      for (var coord = xEndRect - step; coord > xRect; coord -= step * 2) {
+          this._ctx.lineTo(xRect - step / 2, coord + step);
+          this._ctx.lineTo(xRect + step / 2, coord);
+      };
     },
 
     _drawExtRect: function() {
       this._ctx.rect(
           -this._container.width / 2, -this._container.height / 2,
-          this._container.width,this._container.height);
+          this._container.width, this._container.height);
     },
 
-    _drawTextSizeImg: function(){
-      var text =  this._image.naturalWidth + ' x ' + this._image.naturalHeight;
+    _drawTextSizeImg: function(xRect) {
+      var text = this._image.naturalWidth + ' x ' + this._image.naturalHeight;
       this._ctx.font = '24px sans-serif';
       this._ctx.fillStyle = '#fff';
       this._ctx.textAlign = 'center';
       this._ctx.fillText(text,
           0,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2 - 20);
-      console.log(text);
+          xRect - 20);
     },
 
     /**
