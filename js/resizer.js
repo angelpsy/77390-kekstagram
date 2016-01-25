@@ -82,7 +82,7 @@
 
       //Возможные варианты типов линий dash, dotted, zigzag
       var typeLineInnerReac = 'zigzag',
-          colorLine = '#ffe753';
+        colorLine = '#ffe753';
 
       // Очистка изображения.
       this._ctx.clearRect(0, 0, this._container.width, this._container.height);
@@ -101,7 +101,6 @@
       this._ctx.setLineDash([15, 10]);
       // Смещение первого штриха от начала линии.
       this._ctx.lineDashOffset = 7;
-          
 
       // Сохранение состояния канваса.
       // Подробней см. строку 132.
@@ -118,22 +117,27 @@
       this._ctx.drawImage(this._image, displX, displY);
 
       var xRect = (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          wRect = this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          xEndRect = xRect + wRect;
+        wRect = this._resizeConstraint.side - this._ctx.lineWidth / 2,
+        xEndRect = xRect + wRect;
+
+      // пути
+      var pathInnerRect = new Path2D();
+      pathInnerRect.rect(
+            -this._container.width / 2, -this._container.height / 2,
+            this._container.width, this._container.height
+          );
+
       switch (typeLineInnerReac) {
         case 'dash':
-        // Отрисовка прямоугольника, обозначающего область изображения после
-        // кадрирования. Координаты задаются от центра.
-        this._ctx.strokeRect(
-            xRect,
-            xRect,
-            wRect,
-            wRect);
+          // Отрисовка прямоугольника, обозначающего область изображения после
+          // кадрирования. Координаты задаются от центра.
+          this._ctx.strokeRect(xRect, xRect, wRect, wRect);
+          pathInnerRect.rect(xRect, xRect, wRect, wRect);
           break;
         case 'dotted':
-        var radius = 3,
+          var radius = 3,
             step = 15;
-        // Отрисовка прямоугольника из точек
+          // Отрисовка прямоугольника из точек
           this._ctx.beginPath();
           this._ctx.fillStyle = colorLine;
           for (var coord = xRect; coord < xEndRect; coord += step) {
@@ -159,21 +163,52 @@
             this._ctx.closePath();
           }
           this._ctx.fill();
+          pathInnerRect.rect(xRect, xRect, wRect, wRect);
           break;
-        // отрисовка прямоугольника из зигзага
+          // отрисовка прямоугольника из зигзага
         case 'zigzag':
           this._ctx.strokeStyle = colorLine;
           this._ctx.beginPath();
           this._ctx.setLineDash([0, 0]);
-          this._drawInnerRectZigzag(xRect, wRect, xEndRect);
+          _drawInnerRectZigzag(this._ctx);
           this._ctx.closePath();
           this._ctx.stroke();
+          _drawInnerRectZigzag(pathInnerRect);
           break;
       }
+
+      function _drawInnerRectZigzag(that) {
+        var stepZigzag = 15;
+        that.moveTo(xRect, xRect);
+        for (var coordZigzag = xRect + stepZigzag; coordZigzag < xEndRect; coordZigzag += stepZigzag * 2) {
+          that.lineTo(coordZigzag, xRect + stepZigzag / 2);
+          that.lineTo(coordZigzag + stepZigzag, xRect - stepZigzag / 2);
+        }
+        for (coordZigzag = xRect + stepZigzag; coordZigzag < xEndRect; coordZigzag += stepZigzag * 2) {
+          that.lineTo(xEndRect + stepZigzag / 2, coordZigzag);
+          that.lineTo(xEndRect - stepZigzag / 2, coordZigzag + stepZigzag);
+        }
+        for (coordZigzag = xEndRect - stepZigzag; coordZigzag > xRect; coordZigzag -= stepZigzag * 2) {
+          that.lineTo(coordZigzag + stepZigzag, xEndRect - stepZigzag / 2);
+          that.lineTo(coordZigzag, xEndRect + stepZigzag / 2);
+        }
+        for (coordZigzag = xEndRect - stepZigzag; coordZigzag > xRect; coordZigzag -= stepZigzag * 2) {
+          that.lineTo(xRect - stepZigzag / 2, coordZigzag + stepZigzag);
+          that.lineTo(xRect + stepZigzag / 2, coordZigzag);
+        }
+      }
+
       //Отрисовка слоя вокруг желтой рамки
-      this._drawBagel(false, typeLineInnerReac, xRect, wRect, xEndRect);
+      this._ctx.fillStyle = 'rgba(0,0,0,0.8)';
+      this._ctx.fill(pathInnerRect, 'evenodd');
+
       //Отрисовка размера кадрируемого изображения
-      this._drawTextSizeImg(xRect);
+
+      var text = this._image.naturalWidth + ' x ' + this._image.naturalHeight;
+      this._ctx.font = '24px sans-serif';
+      this._ctx.fillStyle = '#fff';
+      this._ctx.textAlign = 'center';
+      this._ctx.fillText(text, 0, xRect - 20);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
@@ -182,64 +217,6 @@
       // некорректно сработает даже очистка холста или нужно будет использовать
       // сложные рассчеты для координат прямоугольника, который нужно очистить.
       this._ctx.restore();
-    },
-
-    _drawBagel: function(fillStyle, typeLineInnerReac, xRect, wRect, xEndRect) {
-      fillStyle = fillStyle || 'rgba(0,0,0,0.8)';
-      this._ctx.fillStyle = fillStyle;
-      this._ctx.beginPath();
-      if (typeLineInnerReac === 'zigzag') {
-        this._drawInnerRectZigzag(xRect, wRect, xEndRect);
-      } else {
-        this._drawInnerRect(xRect, wRect);
-      };
-      this._drawExtRect();
-      this._ctx.fill('evenodd');
-    },
-
-    _drawInnerRect: function(xRect, wRect) {
-      this._ctx.rect(
-          xRect,
-          xRect,
-          wRect,
-          wRect);
-    },
-
-    _drawInnerRectZigzag: function(xRect, wRect, xEndRect) {
-      var step = 15;
-      this._ctx.moveTo(xRect, xRect)
-      for (var coord = xRect + step; coord < xEndRect; coord += step * 2) {
-          this._ctx.lineTo(coord, xRect + step / 2);
-          this._ctx.lineTo(coord + step, xRect - step / 2);
-      };
-      for (var coord = xRect + step; coord < xEndRect; coord += step * 2) {
-          this._ctx.lineTo(xEndRect + step / 2, coord);
-          this._ctx.lineTo(xEndRect - step / 2, coord + step);
-      };
-      for (var coord = xEndRect - step; coord > xRect; coord -= step * 2) {
-          this._ctx.lineTo(coord + step, xEndRect - step / 2);
-          this._ctx.lineTo(coord, xEndRect + step / 2);
-      };
-      for (var coord = xEndRect - step; coord > xRect; coord -= step * 2) {
-          this._ctx.lineTo(xRect - step / 2, coord + step);
-          this._ctx.lineTo(xRect + step / 2, coord);
-      };
-    },
-
-    _drawExtRect: function() {
-      this._ctx.rect(
-          -this._container.width / 2, -this._container.height / 2,
-          this._container.width, this._container.height);
-    },
-
-    _drawTextSizeImg: function(xRect) {
-      var text = this._image.naturalWidth + ' x ' + this._image.naturalHeight;
-      this._ctx.font = '24px sans-serif';
-      this._ctx.fillStyle = '#fff';
-      this._ctx.textAlign = 'center';
-      this._ctx.fillText(text,
-          0,
-          xRect - 20);
     },
 
     /**
