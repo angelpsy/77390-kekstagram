@@ -79,6 +79,11 @@
      * Отрисовка канваса.
      */
     redraw: function() {
+
+      //Возможные варианты типов линий dash, dotted, zigzag
+      var typeLineInnerReac = 'zigzag',
+        colorLine = '#ffe753';
+
       // Очистка изображения.
       this._ctx.clearRect(0, 0, this._container.width, this._container.height);
 
@@ -90,7 +95,7 @@
       // Толщина линии.
       this._ctx.lineWidth = 6;
       // Цвет обводки.
-      this._ctx.strokeStyle = '#ffe753';
+      this._ctx.strokeStyle = colorLine;
       // Размер штрихов. Первый элемент массива задает длину штриха, второй
       // расстояние между соседними штрихами.
       this._ctx.setLineDash([15, 10]);
@@ -111,13 +116,99 @@
       // Координаты задаются от центра холста.
       this._ctx.drawImage(this._image, displX, displY);
 
-      // Отрисовка прямоугольника, обозначающего область изображения после
-      // кадрирования. Координаты задаются от центра.
-      this._ctx.strokeRect(
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2);
+      var xRect = (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
+        wRect = this._resizeConstraint.side - this._ctx.lineWidth / 2,
+        xEndRect = xRect + wRect;
+
+      // пути
+      var pathInnerRect = new Path2D();
+      pathInnerRect.rect(
+            -this._container.width / 2, -this._container.height / 2,
+            this._container.width, this._container.height
+          );
+
+      switch (typeLineInnerReac) {
+        case 'dash':
+          // Отрисовка прямоугольника, обозначающего область изображения после
+          // кадрирования. Координаты задаются от центра.
+          this._ctx.strokeRect(xRect, xRect, wRect, wRect);
+          pathInnerRect.rect(xRect, xRect, wRect, wRect);
+          break;
+        case 'dotted':
+          var radius = 3,
+            step = 15;
+          // Отрисовка прямоугольника из точек
+          this._ctx.beginPath();
+          this._ctx.fillStyle = colorLine;
+          for (var coord = xRect; coord < xEndRect; coord += step) {
+            this._ctx.arc(
+              xRect,
+              coord,
+              radius, 0, 360);
+            this._ctx.closePath();
+            this._ctx.arc(
+              coord,
+              xRect,
+              radius, 0, 360);
+            this._ctx.closePath();
+            this._ctx.arc(
+              xEndRect,
+              coord,
+              radius, 0, 360);
+            this._ctx.closePath();
+            this._ctx.arc(
+              coord,
+              xEndRect,
+              radius, 0, 360);
+            this._ctx.closePath();
+          }
+          this._ctx.fill();
+          pathInnerRect.rect(xRect, xRect, wRect, wRect);
+          break;
+          // отрисовка прямоугольника из зигзага
+        case 'zigzag':
+          this._ctx.strokeStyle = colorLine;
+          this._ctx.beginPath();
+          this._ctx.setLineDash([0, 0]);
+          _drawInnerRectZigzag(this._ctx);
+          this._ctx.closePath();
+          this._ctx.stroke();
+          _drawInnerRectZigzag(pathInnerRect);
+          break;
+      }
+
+      function _drawInnerRectZigzag(that) {
+        var stepZigzag = 15;
+        that.moveTo(xRect, xRect);
+        for (var coordZigzag = xRect + stepZigzag; coordZigzag < xEndRect; coordZigzag += stepZigzag * 2) {
+          that.lineTo(coordZigzag, xRect + stepZigzag / 2);
+          that.lineTo(coordZigzag + stepZigzag, xRect - stepZigzag / 2);
+        }
+        for (coordZigzag = xRect + stepZigzag; coordZigzag < xEndRect; coordZigzag += stepZigzag * 2) {
+          that.lineTo(xEndRect + stepZigzag / 2, coordZigzag);
+          that.lineTo(xEndRect - stepZigzag / 2, coordZigzag + stepZigzag);
+        }
+        for (coordZigzag = xEndRect - stepZigzag; coordZigzag > xRect; coordZigzag -= stepZigzag * 2) {
+          that.lineTo(coordZigzag + stepZigzag, xEndRect - stepZigzag / 2);
+          that.lineTo(coordZigzag, xEndRect + stepZigzag / 2);
+        }
+        for (coordZigzag = xEndRect - stepZigzag; coordZigzag > xRect; coordZigzag -= stepZigzag * 2) {
+          that.lineTo(xRect - stepZigzag / 2, coordZigzag + stepZigzag);
+          that.lineTo(xRect + stepZigzag / 2, coordZigzag);
+        }
+      }
+
+      //Отрисовка слоя вокруг желтой рамки
+      this._ctx.fillStyle = 'rgba(0,0,0,0.8)';
+      this._ctx.fill(pathInnerRect, 'evenodd');
+
+      //Отрисовка размера кадрируемого изображения
+
+      var text = this._image.naturalWidth + ' x ' + this._image.naturalHeight;
+      this._ctx.font = '24px sans-serif';
+      this._ctx.fillStyle = '#fff';
+      this._ctx.textAlign = 'center';
+      this._ctx.fillText(text, 0, xRect - 20);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
