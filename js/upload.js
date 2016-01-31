@@ -36,6 +36,12 @@
   var filterMap;
 
   /**
+   * Выбранный фильтр
+   * @type {string}
+   */
+  var selectedFilter = 'none';
+
+  /**
    * Объект, который занимается кадрированием изображения.
    * @type {Resizer}
    */
@@ -255,6 +261,8 @@
   filterForm.onsubmit = function(evt) {
     evt.preventDefault();
 
+    setCookie();
+
     cleanupResizer();
     updateBackground();
 
@@ -263,10 +271,17 @@
   };
 
   /**
-   * Обработчик изменения фильтра. Добавляет класс из filterMap соответствующий
-   * выбранному значению в форме.
+   * Обработчик изменения фильтра.
    */
   filterForm.onchange = function() {
+    changeFilter();
+  };
+
+  /**
+   * Функция изменения фильтра. Добавляет класс из filterMap соответствующий
+   * выбранному значению в форме.
+   */
+  function changeFilter() {
     if (!filterMap) {
       // Ленивая инициализация. Объект не создается до тех пор, пока
       // не понадобится прочитать его в первый раз, а после этого запоминается
@@ -278,7 +293,7 @@
       };
     }
 
-    var selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
+    selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
       return item.checked;
     })[0].value;
 
@@ -286,7 +301,52 @@
     // убрать предыдущий примененный класс. Для этого нужно или запоминать его
     // состояние или просто перезаписывать.
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
-  };
+  }
+
+  /**
+   * Сохраняем значение выбранного фильтра в cookie.
+   */
+  function setCookie() {
+    document.cookie = 'filter=' + selectedFilter + ';expires=' + getDateToExpire();
+  }
+
+   /**
+    * Возвращаем дату истечения cookie, учитывая, что срок жизни cookie
+    * — количество дней, прошедшее с вашего ближайшего дня рождения.
+    */
+  function getDateToExpire() {
+    var birthDay = 4,
+      birthMonth = 10, //Январь = 0
+      currentDate = new Date(),
+      currentYear = currentDate.getFullYear(),
+      birthInCurrentYear = +(new Date(currentYear, birthMonth, birthDay)),
+      timeWithBirth = currentDate - birthInCurrentYear;
+    currentDate = +currentDate;
+    if (timeWithBirth < 0) {
+      timeWithBirth = currentDate - new Date(currentYear - 1, birthMonth, birthDay);
+    }
+
+    var dateToExpire = Date.now() + timeWithBirth,
+      formatedDateToExpire = new Date(dateToExpire).toUTCString();
+
+    return formatedDateToExpire;
+  }
+
+  /**
+   * Устанавливаем фильтр, записанный в cookies, выбранным по умолчанию.
+   *
+   */
+  /*global docCookies*/
+  function selectedFilterDefault() {
+    var filterDefault = docCookies.getItem('filter');
+    if (!filterDefault) {
+      return;
+    }
+    filterForm['upload-filter-' + filterDefault].checked = true;
+    changeFilter();
+  }
+
+  selectedFilterDefault();
 
   cleanupResizer();
   updateBackground();
