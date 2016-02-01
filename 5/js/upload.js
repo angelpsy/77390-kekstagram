@@ -188,6 +188,8 @@
           resizeForm.classList.remove('invisible');
 
           hideMessage();
+
+          enableResizeFwd();
         };
 
         fileReader.readAsDataURL(element.files[0]);
@@ -209,6 +211,10 @@
 
     cleanupResizer();
     updateBackground();
+
+    [].forEach.call(resizeForm.querySelectorAll('input[type="number"]'), function(item) {
+      item.value = '';
+    });
 
     resizeForm.classList.add('invisible');
     uploadForm.classList.remove('invisible');
