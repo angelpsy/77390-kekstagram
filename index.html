@@ -78,7 +78,7 @@
   </div>
 </div>
 
-<template id="picture-template">
+<template id="picture-template" style="display: none;">
   <a href="" class="picture">
     <img src="" width="182" height="182">
     <span class="picture-stats">
@@ -92,6 +92,15 @@
 <script src="lib/cookies.js"></script>
 <script src="js/resizer.js"></script>
 <script src="js/upload.js"></script>
+
+<script>
+  var pictures = [],
+    __picturesLoadCallback = function (data) {
+    pictures = data;
+  }
+</script>
+<script src="https://up.htmlacademy.ru/assets/js_intensive/jsonp/pictures.js"></script>
+<script src="js/pictures.js"></script>
 
 </body>
 </html>
