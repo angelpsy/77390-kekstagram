@@ -72,7 +72,29 @@
    * @return {boolean}
    */
   function resizeFormIsValid() {
-    return true;
+    var resizeXVal = +resizeForm['resize-x'].value,
+      resizeYVal = +resizeForm['resize-y'].value,
+      resizeSizeVal = +resizeForm['resize-size'].value,
+      formValid = false,
+      errorText = '';
+    if (isNaN(resizeXVal) || isNaN(resizeYVal) || isNaN(resizeSizeVal)) {
+      errorText = 'Значения полей должны содержать только цифры';
+    } else if (resizeXVal < 0 || resizeYVal < 0 || resizeSizeVal < 0) {
+      errorText = 'Значения могут быть только положительными';
+    } else if ((resizeXVal + resizeSizeVal) > currentResizer._image.naturalWidth) {
+      errorText = 'Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения: ' + currentResizer._image.naturalWidth;
+    } else if ((resizeYVal + resizeSizeVal) > currentResizer._image.naturalHeight) {
+      errorText = 'Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения: ' + currentResizer._image.naturalHeight;
+    } else {
+      formValid = true;
+    }
+
+    resizeForm['resize-fwd'].setAttribute('data-alert', errorText + '. Исправьте');
+    return formValid;
+  }
+
+  function enableResizeFwd() {
+    resizeForm['resize-fwd'].disabled = !resizeFormIsValid();
   }
 
   /**
@@ -160,6 +182,8 @@
           resizeForm.classList.remove('invisible');
 
           hideMessage();
+
+          enableResizeFwd();
         };
 
         fileReader.readAsDataURL(element.files[0]);
@@ -182,8 +206,24 @@
     cleanupResizer();
     updateBackground();
 
+    [].forEach.call(resizeForm.querySelectorAll('input[type="number"]'), function(item) {
+      item.value = '';
+    });
+
     resizeForm.classList.add('invisible');
     uploadForm.classList.remove('invisible');
+  };
+
+  /**
+   * Обработка изменения формы кадрирования. Если форма валидна, активирует
+   * кнопку отправки формы, иначе деактивирует
+   */
+  resizeForm.onchange = function() {
+    enableResizeFwd();
+  };
+
+  resizeForm.oninput = function() {
+    enableResizeFwd();
   };
 
   /**
