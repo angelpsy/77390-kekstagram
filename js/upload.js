@@ -100,7 +100,11 @@
   }
 
   function enableResizeFwd() {
-    resizeForm['resize-fwd'].disabled = !resizeFormIsValid();
+    var formIsValid = resizeFormIsValid();
+    if (currentResizer.getConstraint() && formIsValid) {
+      currentResizer.setConstraint(+resizeForm['resize-x'].value, +resizeForm['resize-y'].value, +resizeForm['resize-size'].value);
+    }
+    resizeForm['resize-fwd'].disabled = !formIsValid;
   }
 
   /**
@@ -167,7 +171,7 @@
    * и показывается форма кадрирования.
    * @param {Event} evt
    */
-  uploadForm.onchange = function(evt) {
+  uploadForm.addEventListener('change', function(evt) {
     var element = evt.target;
     if (element.id === 'upload-file') {
       // Проверка типа загружаемого файла, тип должен быть изображением
@@ -177,11 +181,12 @@
 
         showMessage(Action.UPLOADING);
 
-        fileReader.onload = function() {
+        fileReader.addEventListener('load', function() {
           cleanupResizer();
 
           currentResizer = new Resizer(fileReader.result);
           currentResizer.setElement(resizeForm);
+
           uploadMessage.classList.add('invisible');
 
           uploadForm.classList.add('invisible');
@@ -190,7 +195,9 @@
           hideMessage();
 
           enableResizeFwd();
-        };
+          // Изначальные значения для полей формы кадрирования
+          setTimeout(resizerChangeInForm, 1);
+        });
 
         fileReader.readAsDataURL(element.files[0]);
       } else {
@@ -199,14 +206,14 @@
         showMessage(Action.ERROR);
       }
     }
-  };
+  });
 
   /**
    * Обработка сброса формы кадрирования. Возвращает в начальное состояние
    * и обновляет фон.
    * @param {Event} evt
    */
-  resizeForm.onreset = function(evt) {
+  resizeForm.addEventListener('reset', function(evt) {
     evt.preventDefault();
 
     cleanupResizer();
@@ -218,26 +225,26 @@
 
     resizeForm.classList.add('invisible');
     uploadForm.classList.remove('invisible');
-  };
+  });
 
   /**
    * Обработка изменения формы кадрирования. Если форма валидна, активирует
    * кнопку отправки формы, иначе деактивирует
    */
-  resizeForm.onchange = function() {
+  resizeForm.addEventListener('change', function() {
     enableResizeFwd();
-  };
+  });
 
-  resizeForm.oninput = function() {
+  resizeForm.addEventListener('input', function() {
     enableResizeFwd();
-  };
+  });
 
   /**
    * Обработка отправки формы кадрирования. Если форма валидна, экспортирует
    * кропнутое изображение в форму добавления фильтра и показывает ее.
    * @param {Event} evt
    */
-  resizeForm.onsubmit = function(evt) {
+  resizeForm.addEventListener('submit', function(evt) {
     evt.preventDefault();
 
     if (resizeFormIsValid()) {
@@ -246,25 +253,25 @@
       resizeForm.classList.add('invisible');
       filterForm.classList.remove('invisible');
     }
-  };
+  });
 
   /**
    * Сброс формы фильтра. Показывает форму кадрирования.
    * @param {Event} evt
    */
-  filterForm.onreset = function(evt) {
+  filterForm.addEventListener('reset', function(evt) {
     evt.preventDefault();
 
     filterForm.classList.add('invisible');
     resizeForm.classList.remove('invisible');
-  };
+  });
 
   /**
    * Отправка формы фильтра. Возвращает в начальное состояние, предварительно
    * записав сохраненный фильтр в cookie.
    * @param {Event} evt
    */
-  filterForm.onsubmit = function(evt) {
+  filterForm.addEventListener('submit', function(evt) {
     evt.preventDefault();
 
     setCookie();
@@ -274,14 +281,24 @@
 
     filterForm.classList.add('invisible');
     uploadForm.classList.remove('invisible');
-  };
+  });
 
   /**
    * Обработчик изменения фильтра.
    */
-  filterForm.onchange = function() {
+  filterForm.addEventListener('change', function() {
     changeFilter();
-  };
+  });
+
+  //
+
+  window.addEventListener('resizerchange', resizerChangeInForm);
+
+  function resizerChangeInForm() {
+    resizeForm['resize-x'].value = currentResizer.getConstraint().x;
+    resizeForm['resize-y'].value = currentResizer.getConstraint().y;
+    resizeForm['resize-size'].value = currentResizer.getConstraint().side;
+  }
 
   /**
    * Функция изменения фильтра. Добавляет класс из filterMap соответствующий
