@@ -1,3 +1,5 @@
+/* global Photo */
+
 'use strict';
 
 (function() {
@@ -38,38 +40,6 @@
     return wrapper;
   };
 
-
-  // на основе шаблона для каждого элемента создаем DOM-элемент
-  listFoto.getElementFromTemplate = function(data) {
-    var element = listFoto.pictureTemplatSelector.cloneNode(true);
-    element.querySelector('.picture-comments').textContent = data.comments;
-    element.querySelector('.picture-likes').textContent = data.likes;
-    element.href = data.url;
-
-    var newImage = new Image();
-    newImage.onload = function() {
-      clearTimeout(imgLoadTimeout);
-      element.replaceChild(newImage, element.querySelector('img'));
-    };
-    newImage.onerror = function() {
-      element.classList.add('picture-load-failure');
-    };
-    newImage.src = data.url;
-
-    listFoto.IMG_SIZE = 182;
-    newImage.width = listFoto.IMG_SIZE;
-    newImage.height = listFoto.IMG_SIZE;
-
-
-    var IMG_TIMEOUT = 10000,
-      imgLoadTimeout = setTimeout(function() {
-        newImage.src = '';
-        element.classList.add('picture-load-failure');
-      }, IMG_TIMEOUT);
-
-    return element;
-  };
-
   // Для всех элементов массива с изображенями создаем элемент и вставляем его в "фрагмент",
   // который потом вставляем в контейнер для изображений
   listFoto.renderFotos = function(pictures, pageNumber, replace) {
@@ -80,12 +50,17 @@
       to = from + listFoto.PAGE_SIZE,
       pagePictures = pictures.slice(from, to);
     if (replace) {
+      var renderedPhotos = listFoto.picturesContainer.querySelectorAll('.picture');
+      Array.prototype.forEach.call(renderedPhotos, function(el) {
+        listFoto.picturesContainer.removeChild(el);
+      });
       listFoto.picturesContainer.innerHTML = '';
     }
 
     pagePictures.forEach(function(foto) {
-      var element = listFoto.getElementFromTemplate(foto);
-      fragment.appendChild(element);
+      var photo = new Photo(foto);
+      photo.render();
+      fragment.appendChild(photo.element);
     });
     listFoto.picturesContainer.appendChild(fragment);
   };
@@ -159,7 +134,7 @@
   listFoto.renderFotosFullPage = function() {
     var picturesCoordinates = listFoto.picturesContainer.getBoundingClientRect(),
       viewportHeight = window.innerHeight;
-    if (picturesCoordinates.bottom - listFoto.IMG_SIZE < viewportHeight) {
+    if (picturesCoordinates.bottom - Photo.prototype.getImgSize() < viewportHeight) {
       listFoto.renderFotos(listFoto.FilteredPictures, ++listFoto.currentPage, false);
       if (listFoto.currentPage >= listFoto.picturesLength / listFoto.PAGE_SIZE) {
         window.removeEventListener('scroll', listFoto.renderFotosFullPage);
@@ -173,7 +148,6 @@
 
   listFoto.init = function() {
 
-    listFoto.pictureTemplate = document.getElementById('picture-template');
     listFoto.picturesContainer = document.querySelector('.pictures');
     listFoto.filtersContainer = document.querySelector('.filters');
     listFoto.activeFilter = listFoto.filtersContainer.querySelector('.filters-radio:checked').id;
@@ -182,13 +156,6 @@
     listFoto.picturesLength = 0;
     listFoto.currentPage = 0;
     listFoto.PAGE_SIZE = 12;
-
-    // Для кроссбраузерности
-    if (!('content' in listFoto.pictureTemplate)) {
-      listFoto.pictureTemplate.content = listFoto.pictureTemplate;
-    }
-
-    listFoto.pictureTemplatSelector = listFoto.pictureTemplate.content.querySelector('.picture');
 
     listFoto.filtersContainer.addEventListener('click', listFoto.setActiveFilter);
     window.addEventListener('scroll', listFoto.renderFotosFullPage);
