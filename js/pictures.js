@@ -1,7 +1,8 @@
 'use strict';
 
 (function() {
-  var listFoto = {};
+  var listFoto = {},
+    currentTime = Date.now();
 
   var filtersHidden = function() {
     listFoto.filtersContainer.classList.add('hidden');
@@ -9,6 +10,32 @@
 
   var filtersShow = function() {
     listFoto.filtersContainer.classList.remove('hidden');
+  };
+
+  var throttle = function(func, ms) {
+    var isThrottled = false,
+      savedArgs,
+      savedThis;
+
+    function wrapper() {
+      if (isThrottled) {
+        savedArgs = arguments;
+        savedThis = this;
+        return;
+      }
+      func.apply(this, arguments);
+      isThrottled = true;
+
+      setTimeout(function() {
+        isThrottled = false;
+        if (savedArgs) {
+          wrapper.apply(savedThis, savedArgs);
+          savedArgs = savedThis = null;
+        }
+      }, ms);
+    }
+
+    return wrapper;
   };
 
 
@@ -29,9 +56,9 @@
     };
     newImage.src = data.url;
 
-    var IMG_SIZE = 182;
-    newImage.width = IMG_SIZE;
-    newImage.height = IMG_SIZE;
+    listFoto.IMG_SIZE = 182;
+    newImage.width = listFoto.IMG_SIZE;
+    newImage.height = listFoto.IMG_SIZE;
 
 
     var IMG_TIMEOUT = 10000,
@@ -45,14 +72,18 @@
 
   // Для всех элементов массива с изображенями создаем элемент и вставляем его в "фрагмент",
   // который потом вставляем в контейнер для изображений
-  listFoto.renderFotos = function(pictures) {
+  listFoto.renderFotos = function(pictures, pageNumber, replace) {
     pictures = pictures || listFoto.pictures;
 
-    var fragment = document.createDocumentFragment();
+    var fragment = document.createDocumentFragment(),
+      from = pageNumber * listFoto.PAGE_SIZE,
+      to = from + listFoto.PAGE_SIZE,
+      pagePictures = pictures.slice(from, to);
+    if (replace) {
+      listFoto.picturesContainer.innerHTML = '';
+    }
 
-    listFoto.picturesContainer.innerHTML = '';
-
-    pictures.forEach(function(foto) {
+    pagePictures.forEach(function(foto) {
       var element = listFoto.getElementFromTemplate(foto);
       fragment.appendChild(element);
     });
@@ -68,7 +99,9 @@
 
     xhr.onload = function(evt) {
       listFoto.pictures = JSON.parse(evt.srcElement.response);
-      listFoto.renderFotos();
+      listFoto.picturesLength = listFoto.pictures.length;
+      listFoto.renderFotos(false, 0, true);
+      listFoto.renderFotosFullPage();
     };
 
     xhr.onerror = function() {
@@ -86,10 +119,14 @@
     xhr.send();
   };
 
-  var setActiveFilter = function(id) {
-    if (listFoto.activeFilter === id) {
+  listFoto.setActiveFilter = function(e) {
+    if (e.target.nodeName !== 'INPUT' || e.target.id === listFoto.activeFilter) {
       return;
     }
+    var id = e.target.id;
+
+    window.addEventListener('scroll', listFoto.renderFotosFullPage);
+    listFoto.currentPage = 0;
 
     document.getElementById(listFoto.activeFilter).classList.remove('filter-selector');
     document.getElementById(id).classList.add('filter-selector');
@@ -101,7 +138,7 @@
       case 'filter-new':
         listFoto.FilteredPictures = listFoto.FilteredPictures
           .filter(function(item) {
-            return (Date.parse(item.date) >= listFoto.msFilterNewFoto) && (Date.parse(item.date) <= listFoto.currentTime);
+            return (Date.parse(item.date) >= listFoto.msFilterNewFoto) && (Date.parse(item.date) <= currentTime);
           })
           .sort(function(a, b) {
             return Date.parse(b.date) - Date.parse(a.date);
@@ -114,17 +151,37 @@
         break;
     }
 
-    listFoto.renderFotos(listFoto.FilteredPictures);
+    listFoto.renderFotos(listFoto.FilteredPictures, 0, true);
+    listFoto.renderFotosFullPage();
   };
 
+
+  listFoto.renderFotosFullPage = function() {
+    var picturesCoordinates = listFoto.picturesContainer.getBoundingClientRect(),
+      viewportHeight = window.innerHeight;
+    if (picturesCoordinates.bottom - listFoto.IMG_SIZE < viewportHeight) {
+      listFoto.renderFotos(listFoto.FilteredPictures, ++listFoto.currentPage, false);
+      if (listFoto.currentPage >= listFoto.picturesLength / listFoto.PAGE_SIZE) {
+        window.removeEventListener('scroll', listFoto.renderFotosFullPage);
+      } else {
+        listFoto.renderFotosFullPage();
+      }
+    }
+  };
+
+  listFoto.renderFotosFullPage = throttle(listFoto.renderFotosFullPage, 100);
+
   listFoto.init = function() {
+
     listFoto.pictureTemplate = document.getElementById('picture-template');
     listFoto.picturesContainer = document.querySelector('.pictures');
     listFoto.filtersContainer = document.querySelector('.filters');
     listFoto.activeFilter = listFoto.filtersContainer.querySelector('.filters-radio:checked').id;
-    listFoto.currentTime = Date.now();
-    listFoto.msFilterNewFoto = listFoto.currentTime - 14 * 24 * 60 * 60 * 1000; // При фильтре Новые показываем фотографии только за последние 2 недели
+    listFoto.msFilterNewFoto = currentTime - 14 * 24 * 60 * 60 * 1000; // При фильтре Новые показываем фотографии только за последние 2 недели
     listFoto.pictures = []; //Массив данных о фотографиях
+    listFoto.picturesLength = 0;
+    listFoto.currentPage = 0;
+    listFoto.PAGE_SIZE = 12;
 
     // Для кроссбраузерности
     if (!('content' in listFoto.pictureTemplate)) {
@@ -133,16 +190,10 @@
 
     listFoto.pictureTemplatSelector = listFoto.pictureTemplate.content.querySelector('.picture');
 
+    listFoto.filtersContainer.addEventListener('click', listFoto.setActiveFilter);
+    window.addEventListener('scroll', listFoto.renderFotosFullPage);
+
     filtersHidden();
-
-    listFoto.filtersContainer.onclick = function(e) {
-      if (e.target.nodeName === 'INPUT') {
-        var clickedElementID = e.target.id;
-
-        setActiveFilter(clickedElementID);
-      }
-    };
-
     listFoto.getPictures();
     filtersShow();
   };
