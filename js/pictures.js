@@ -146,7 +146,7 @@
   };
 
   listFoto.showGallery = function(evt) {
-    if (evt.target.parentNode.className !== 'picture') {
+    if (!evt.target.parentNode.classList.contains('picture') || evt.target.tagName !== 'IMG') {
       return;
     }
     event.preventDefault();
