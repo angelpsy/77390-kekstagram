@@ -1,10 +1,11 @@
-/* global Photo */
+/* global Photo, Gallery */
 
 'use strict';
 
 (function() {
   var listFoto = {},
-    currentTime = Date.now();
+    currentTime = Date.now(),
+    gallery = new Gallery();
 
   var filtersHidden = function() {
     listFoto.filtersContainer.classList.add('hidden');
@@ -144,6 +145,14 @@
     }
   };
 
+  listFoto.showGallery = function(evt) {
+    if (evt.target.parentNode.className !== 'picture') {
+      return;
+    }
+    event.preventDefault();
+    gallery.show();
+  };
+
   listFoto.renderFotosFullPage = throttle(listFoto.renderFotosFullPage, 100);
 
   listFoto.init = function() {
@@ -158,6 +167,7 @@
     listFoto.PAGE_SIZE = 12;
 
     listFoto.filtersContainer.addEventListener('click', listFoto.setActiveFilter);
+    listFoto.picturesContainer.addEventListener('click', listFoto.showGallery);
     window.addEventListener('scroll', listFoto.renderFotosFullPage);
 
     filtersHidden();
