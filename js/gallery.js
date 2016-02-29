@@ -2,17 +2,29 @@
 
 (function() {
   var _onDocumentKeyDown = function(evt) {
-    if (evt.keyCode === 27) {
-      this.hide();
+    switch (evt.keyCode) {
+      case 27:
+        this.hide();
+        break;
+      case 37:
+        if (this.currentPhoto > 0) {
+          this.setCurrentPicture(--this.currentPhoto);
+        }
+        break;
+      case 39:
+        if (this.currentPhoto < this.amountPhotos - 1) {
+          this.setCurrentPicture(++this.currentPhoto);
+        }
+        break;
     }
+
   };
 
   var _onPhotoClick = function(evt) {
     if (evt.target.className !== 'gallery-overlay-image' || this.currentPhoto >= this.amountPhotos - 1) {
       return;
     }
-    this.currentPhoto++;
-    this.setCurrentPicture(this.currentPhoto);
+    this.setCurrentPicture(++this.currentPhoto);
   };
 
   var Gallery = function() {
