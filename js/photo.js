@@ -39,11 +39,21 @@
         this.element.classList.add('picture-load-failure');
       }.bind(this), IMG_TIMEOUT);
 
+    this.element.addEventListener('click', function(evt) {
+      event.preventDefault();
+      if (event.target.tagName === 'IMG' &&
+          !evt.target.parentNode.classList.contains('picture-load-failure') &&
+          typeof this.onClick === 'function') {
+        this.onClick();
+      }
+    }.bind(this));
   };
 
   Photo.prototype.getImgSize = function() {
     return _IMG_SIZE;
   };
+
+  Photo.prototype.onClick = null;
 
   window.Photo = Photo;
 })();
