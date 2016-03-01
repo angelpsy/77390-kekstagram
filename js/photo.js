@@ -55,5 +55,11 @@
 
   Photo.prototype.onClick = null;
 
+  Photo.prototype.remove = function() {
+    this.onClick = null;
+    this.element.removeEventListener('click', this._onClick);
+    this.element.parentNode.removeChild(this.element);
+  }
+
   window.Photo = Photo;
 })();

@@ -5,7 +5,8 @@
 (function() {
   var listFoto = {},
     currentTime = Date.now(),
-    gallery = new Gallery();
+    gallery = new Gallery(),
+    renderedPhotos = [];
 
   var filtersHidden = function() {
     listFoto.filtersContainer.classList.add('hidden');
@@ -51,15 +52,14 @@
       to = from + listFoto.PAGE_SIZE,
       pagePictures = pictures.slice(from, to);
     if (replace) {
-      var renderedPhotos = listFoto.picturesContainer.querySelectorAll('.picture');
       Array.prototype.forEach.call(renderedPhotos, function(el) {
-        el.onClick = null;
-        listFoto.picturesContainer.removeChild(el);
+        el.remove();
       });
+      renderedPhotos.length = 0;
       listFoto.picturesContainer.innerHTML = '';
     }
 
-    pagePictures.forEach(function(foto, index) {
+    renderedPhotos = renderedPhotos.concat(pagePictures.map(function(foto, index) {
       var photo = new Photo(foto);
       photo.render();
       fragment.appendChild(photo.element);
@@ -67,7 +67,9 @@
         gallery.setCurrentPicture(index + from);
         gallery.show();
       };
-    });
+
+      return photo;
+    }));
     listFoto.picturesContainer.appendChild(fragment);
     gallery.setPictures(pictures);
   };
