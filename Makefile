@@ -1,4 +1,7 @@
 all:
 	rm -rf gosha
 	mkdir gosha
-	rsync -av --exclude 'Makefile' --exclude '.eslint*' --exclude '.git*' --exclude '.travis.yml' --exclude '.editorconfig' --exclude 'node_modules' --exclude '*.log' --exclude 'package.json' --exclude 'gosha/' --exclude '*.md' . gosha/
+	node ./node_modules/webpack/bin/webpack.js --config webpack.config.js
+	rsync -av --exclude-from '.goshaignore' . ./gosha
+	rm -rf ./out
+	rm -rf ./1..
