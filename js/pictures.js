@@ -1,8 +1,8 @@
-/* global Photo, Gallery */
-
 'use strict';
 
-(function() {
+var Photo = require('photo');
+var Gallery = require('gallery');
+
   var listFoto = {},
     currentTime = Date.now(),
     gallery = new Gallery(),
@@ -175,5 +175,3 @@
   };
 
   listFoto.init();
-
-}());

@@ -32,3 +32,5 @@ var getMessage = function (a, b) {
     }
     return "непонятно";
 }
+
+module.exports = getMessage;

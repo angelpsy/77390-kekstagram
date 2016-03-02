@@ -1,6 +1,5 @@
 'use strict';
 
-(function() {
   var _onDocumentKeyDown = function(evt) {
     switch (evt.keyCode) {
       case 27:
@@ -60,5 +59,4 @@
     this.currentPhoto = number;
   };
 
-  window.Gallery = Gallery;
-}());
+module.exports = Gallery;

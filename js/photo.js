@@ -1,6 +1,5 @@
 'use strict';
 
-(function() {
   var _IMG_SIZE = 182;
   var _pictureTemplate = document.getElementById('picture-template');
 
@@ -61,5 +60,4 @@
     this.element.parentNode.removeChild(this.element);
   }
 
-  window.Photo = Photo;
-})();
+module.exports = Photo;
