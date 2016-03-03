@@ -3,19 +3,41 @@
   var Photo = require('photo');
   var Gallery = require('gallery');
 
+  /**
+  *Объект для работы с модулем pictures
+  * @type {Object}
+  * @type {number} Текущая дата
+  * @type {Object}
+  * @type {Array}
+  */
+
   var listFoto = {},
     currentTime = Date.now(),
     gallery = new Gallery(),
     renderedPhotos = [];
 
+    /**
+    *Скрываем фильтры
+    */
+
   var filtersHidden = function() {
     listFoto.filtersContainer.classList.add('hidden');
   };
+
+  /**
+  *Показываем фильтры
+  */
 
   var filtersShow = function() {
     listFoto.filtersContainer.classList.remove('hidden');
   };
 
+  /**
+  *Тормозилка
+  * @param {function}
+  * @param {number}
+  * @return {function}
+  */
   var throttle = function(func, ms) {
     var isThrottled = false,
       savedArgs,
@@ -42,8 +64,10 @@
     return wrapper;
   };
 
-  // Для всех элементов массива с изображенями создаем элемент и вставляем его в "фрагмент",
-  // который потом вставляем в контейнер для изображений
+  /** Для всех элементов массива с изображенями создаем элемент и вставляем его в "фрагмент",
+  *который потом вставляем в контейнер для изображений
+  *@param {?Array} {number} [boolean]
+  */
   listFoto.renderFotos = function(pictures, pageNumber, replace) {
     pictures = pictures || listFoto.pictures;
 
@@ -74,6 +98,9 @@
     gallery.setPictures(pictures);
   };
 
+  /**
+  *Получает данные со списком фотографий и сохраняет его в свойство listFoto.pictures
+  */
   listFoto.getPictures = function() {
     var xhr = new XMLHttpRequest(),
       XHR_TIMEOUT = 10000;
@@ -103,6 +130,10 @@
     xhr.send();
   };
 
+  /**
+  *Переключение фильтра
+  *@param {event}
+  */
   listFoto.setActiveFilter = function(e) {
     if (e.target.nodeName !== 'INPUT' || e.target.id === listFoto.activeFilter) {
       return;
@@ -139,7 +170,9 @@
     listFoto.renderFotosFullPage();
   };
 
-
+  /**
+  *Отмеряем необходимое количество фотографий
+  */
   listFoto.renderFotosFullPage = function() {
     var picturesCoordinates = listFoto.picturesContainer.getBoundingClientRect(),
       viewportHeight = window.innerHeight;
@@ -154,7 +187,9 @@
   };
 
   listFoto.renderFotosFullPage = throttle(listFoto.renderFotosFullPage, 100);
-
+  /**
+  *Инициализация необходимых методов и задание необходимых значений
+  */
   listFoto.init = function() {
 
     listFoto.picturesContainer = document.querySelector('.pictures');

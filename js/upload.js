@@ -97,6 +97,9 @@
     return formValid;
   }
 
+  /**
+   * валидация формы кадрирования
+   */
   function enableResizeFwd() {
     var formIsValid = resizeFormIsValid();
     if (currentResizer.getConstraint() && formIsValid) {

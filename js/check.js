@@ -1,5 +1,11 @@
   'use strict';
-
+  
+  /**
+   * Статистика для разных типов файлов-изображений
+   * @param  {*} a
+   * @param  {*=} b
+   * @return {string}
+   */
   var getMessage = function (a, b) {
 
       switch (typeof(a)) {

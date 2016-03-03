@@ -1,5 +1,11 @@
   'use strict';
 
+  /**
+ * Наследует один объект от другого
+ * @param {function} child - Конструктор потомка
+ * @param {function} parent - Конструктор предка
+ */
+
   var inherit = function(FuncChild, FuncParent) {
     if (typeof FuncChild !== 'function' || typeof FuncParent !== 'function') {
       console.log('переданы не функции');

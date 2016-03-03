@@ -79,7 +79,13 @@
      */
     redraw: function() {
 
-      //Возможные варианты типов линий dash, dotted, zigzag
+      /**
+      * Возможные варианты типов линий dash, dotted, zigzag
+      * @type {string}
+      *
+      * Цвет линии
+      * @type {string}
+      */
       var typeLineInnerReac = 'zigzag',
         colorLine = '#ffe753';
 
@@ -176,6 +182,9 @@
           break;
       }
 
+      /** Отрисовка зигзага
+      * @param {ctx}
+      */
       function _drawInnerRectZigzag(that) {
         var stepZigzag = 15;
         that.moveTo(xRect, xRect);

@@ -1,5 +1,10 @@
   'use strict';
 
+  /**
+  *@type {const}
+  *@type {Element}
+  */
+
   var _IMG_SIZE = 182;
   var _pictureTemplate = document.getElementById('picture-template');
 
@@ -7,11 +12,22 @@
     _pictureTemplate.content = _pictureTemplate;
   }
 
+  /**
+  *@type {Element}
+  */
   var _pictureTemplatSelector = _pictureTemplate.content.querySelector('.picture');
+
+  /**
+  *@constructor
+  */
   var Photo = function(data) {
     this._data = data;
   };
 
+   /**
+    * Отображение DOM-элемента по шаблону для фотографии в списке
+    * @method
+    */
   Photo.prototype.render = function() {
     this.element = _pictureTemplatSelector.cloneNode(true);
     this.element.querySelector('.picture-comments').textContent = this._data.comments;
@@ -54,6 +70,10 @@
 
   Photo.prototype.onClick = null;
 
+  /**
+ * Метод удаления обработчиков событий с DOM-элемента фотографии и удаления элемента из DOM-дерева
+ * @method
+ */
   Photo.prototype.remove = function() {
     this.onClick = null;
     this.element.removeEventListener('click', this._onClick);
