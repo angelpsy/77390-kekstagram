@@ -269,13 +269,13 @@
 
   /**
    * Отправка формы фильтра. Возвращает в начальное состояние, предварительно
-   * сохранив фильтр.
+   * записав сохраненный фильтр в cookie.
    * @param {Event} evt
    */
   filterForm.addEventListener('submit', function(evt) {
     evt.preventDefault();
 
-    saveFilter();
+    setCookie();
 
     cleanupResizer();
     updateBackground();
@@ -317,8 +317,9 @@
       };
     }
 
-    selectedFilter = getSelectedFilter();
-    saveFilter();
+    selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
+      return item.checked;
+    })[0].value;
 
     // Класс перезаписывается, а не обновляется через classList потому что нужно
     // убрать предыдущий примененный класс. Для этого нужно или запоминать его
@@ -326,32 +327,42 @@
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
   }
 
-
   /**
-   * Возвращаем выбранный в данным момент фильтра
-   * @return {string}
+   * Сохраняем значение выбранного фильтра в cookie.
    */
-  function getSelectedFilter() {
-    return [].filter.call(filterForm['upload-filter'], function(item) {
-      return item.checked;
-    })[0].value;
+  function setCookie() {
+    document.cookie = 'filter=' + selectedFilter + ';expires=' + getDateToExpire();
   }
 
+   /**
+    * Возвращаем дату истечения cookie, учитывая, что срок жизни cookie
+    * — количество дней, прошедшее с вашего ближайшего дня рождения.
+    */
+  function getDateToExpire() {
+    var birthDay = 4,
+      birthMonth = 10, //Январь = 0
+      currentDate = new Date(),
+      currentYear = currentDate.getFullYear(),
+      birthInCurrentYear = +(new Date(currentYear, birthMonth, birthDay)),
+      timeWithBirth = currentDate - birthInCurrentYear;
+    currentDate = +currentDate;
+    if (timeWithBirth < 0) {
+      timeWithBirth = currentDate - new Date(currentYear - 1, birthMonth, birthDay);
+    }
 
-  /**
-   * Сохраняем значение выбранного фильтра в localStorage.
-   */
-  function saveFilter() {
-    localStorage.setItem('activeFilter', selectedFilter);
+    var dateToExpire = Date.now() + timeWithBirth,
+      formatedDateToExpire = new Date(dateToExpire).toUTCString();
+
+    return formatedDateToExpire;
   }
 
   /**
-   * Устанавливаем фильтр, записанный в localStorage, выбранным по умолчанию.
+   * Устанавливаем фильтр, записанный в cookies, выбранным по умолчанию.
    *
    */
   /*global docCookies*/
   function selectedFilterDefault() {
-    var filterDefault = localStorage.getItem('activeFilter');
+    var filterDefault = docCookies.getItem('filter');
     if (!filterDefault) {
       return;
     }
