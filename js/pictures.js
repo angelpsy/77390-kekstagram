@@ -112,6 +112,13 @@
       listFoto.picturesLength = listFoto.pictures.length;
       listFoto.renderFotos(false, 0, true);
       listFoto.renderFotosFullPage();
+
+      var saveFilter = localStorage.getItem('filterListPhoto');
+      listFoto.activeFilter = listFoto.filtersContainer.querySelector('.filters-radio:checked').id;
+      if (saveFilter && listFoto.activeFilter !== saveFilter) {
+        document.getElementById(saveFilter).click();
+        listFoto.activeFilter = saveFilter;
+      }
     };
 
     xhr.onerror = function() {
@@ -138,6 +145,8 @@
       return;
     }
     var id = e.target.id;
+
+    localStorage.setItem('filterListPhoto', id);
 
     window.addEventListener('scroll', listFoto.renderFotosFullPage);
     listFoto.currentPage = 0;
@@ -193,14 +202,13 @@
 
     listFoto.picturesContainer = document.querySelector('.pictures');
     listFoto.filtersContainer = document.querySelector('.filters');
-    listFoto.activeFilter = listFoto.filtersContainer.querySelector('.filters-radio:checked').id;
     listFoto.msFilterNewFoto = currentTime - 14 * 24 * 60 * 60 * 1000; // При фильтре Новые показываем фотографии только за последние 2 недели
     listFoto.pictures = []; //Массив данных о фотографиях
     listFoto.picturesLength = 0;
     listFoto.currentPage = 0;
     listFoto.PAGE_SIZE = 12;
+    listFoto.filtersContainer.addEventListener('change', listFoto.setActiveFilter);
 
-    listFoto.filtersContainer.addEventListener('click', listFoto.setActiveFilter);
     window.addEventListener('scroll', listFoto.renderFotosFullPage);
 
     filtersHidden();
