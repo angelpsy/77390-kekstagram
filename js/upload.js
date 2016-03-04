@@ -1,3 +1,4 @@
+  /*global docCookies*/
   /**
   * @fileoverview
   * @author Igor Alexeenko (o0)
