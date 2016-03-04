@@ -349,7 +349,6 @@
    * Устанавливаем фильтр, записанный в localStorage, выбранным по умолчанию.
    *
    */
-  /*global docCookies*/
   function selectedFilterDefault() {
     var filterDefault = localStorage.getItem('activeFilter');
     if (!filterDefault) {

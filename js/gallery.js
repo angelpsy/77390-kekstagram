@@ -17,16 +17,16 @@
   var _onDocumentKeyDown = function(evt) {
     switch (evt.keyCode) {
       case keyCode.ESC:
-        this.hide();
+        location.hash = '';
         break;
       case keyCode.LEFT:
         if (this.currentPhoto > 0) {
-          this.setCurrentPicture(--this.currentPhoto);
+          this._changePicture(--this.currentPhoto);
         }
         break;
       case keyCode.RIGHT:
         if (this.currentPhoto < this.amountPhotos - 1) {
-          this.setCurrentPicture(++this.currentPhoto);
+          this._changePicture(++this.currentPhoto);
         }
         break;
     }
@@ -40,8 +40,10 @@
     if (evt.target.className !== 'gallery-overlay-image' || this.currentPhoto >= this.amountPhotos - 1) {
       return;
     }
-    this.setCurrentPicture(++this.currentPhoto);
+    this._changePicture(++this.currentPhoto);
   };
+
+
 
   /**
   * @constructor
@@ -52,6 +54,7 @@
     this.onPhotoClick = _onPhotoClick.bind(this);
     this.currentPhoto = 0;
     this.amountPhotos = 0;
+    this.addEventHaschange = false;
   };
 
   /**
@@ -82,19 +85,60 @@
   Gallery.prototype.setPictures = function(photos) {
     this.photos = photos;
     this.amountPhotos = this.photos.length;
+
+    if (!this.addEventHaschange) {
+      this._toggleShowGallery();
+      this.addEventHaschange = true;
+      window.addEventListener('hashchange', this._toggleShowGallery.bind(this));
+    }
   };
 
   /**
   * Меняем фотографию
   * @method
-  * @param {number}
+  * @param {number||string}
   */
-  Gallery.prototype.setCurrentPicture = function(number) {
-    var _photo = this.photos[number];
+  Gallery.prototype.setCurrentPicture = function(currentPicture) {
+    var typeArg = typeof (currentPicture);
+    if (typeArg === 'string') {
+      var dataFound = false,
+        i = 0;
+      for (; i < this.amountPhotos; i++) {
+        dataFound = (this.photos[i].url === currentPicture);
+        if (dataFound) {
+          currentPicture = i;
+          break;
+        }
+      }
+    }
+    var _photo = this.photos[currentPicture];
     document.querySelector('.gallery-overlay-image').src = _photo.url;
     document.querySelector('.gallery-overlay-controls-like .likes-count').innerHTML = _photo.likes;
     document.querySelector('.gallery-overlay-controls-comments .comments-count').innerHTML = _photo.comments;
-    this.currentPhoto = number;
+    this.currentPhoto = currentPicture;
+  };
+
+  /**
+  * Изменяем видимость галереи
+  * @method
+  */
+
+  Gallery.prototype._toggleShowGallery = function() {
+    var hash = location.hash.match(/#photo\/(\S+)/);
+    if (hash === null ) {
+      this.hide();
+    } else {
+      this.setCurrentPicture(hash[0].replace('#photo/', ''));
+      this.show();
+    }
+  };
+
+  /**
+  * Переключаем фото
+  * @method
+  */
+  Gallery.prototype._changePicture = function(number) {
+    location.hash = '#photo/' + this.photos[number].url;
   };
 
   module.exports = Gallery;

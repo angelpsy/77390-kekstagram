@@ -83,13 +83,12 @@
       listFoto.picturesContainer.innerHTML = '';
     }
 
-    renderedPhotos = renderedPhotos.concat(pagePictures.map(function(foto, index) {
+    renderedPhotos = renderedPhotos.concat(pagePictures.map(function(foto) {
       var photo = new Photo(foto);
       photo.render();
       fragment.appendChild(photo.element);
       photo.onClick = function() {
-        gallery.setCurrentPicture(index + from);
-        gallery.show();
+        location.hash = '#photo/' + foto.url;
       };
 
       return photo;
